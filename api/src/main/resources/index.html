@@ -1,0 +1,76 @@
+<!-- index.html -->
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8" />
+    <title>Clínica Psicológica</title>
+</head>
+<body>
+<div id="login-form">
+    <h2>Login</h2>
+    <input id="email" type="email" placeholder="Email" /><br/>
+    <input id="senha" type="password" placeholder="Senha" /><br/>
+    <button onclick="fazerLogin()">Entrar</button>
+</div>
+<div id="agenda" style="display:none;">
+    <h2>Meus Agendamentos</h2>
+    <ul id="lista-agendamentos"></ul>
+</div>
+
+<script>
+    let token = '';
+
+    async function fazerLogin() {
+        const email = document.getElementById('email').value;
+        const senha = document.getElementById('senha').value;
+        const res = await fetch('/auth/login', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({ email, senha })
+        });
+        if (res.ok) {
+            const data = await res.json();
+            token = data.token;
+            document.getElementById('login-form').style.display = 'none';
+            document.getElementById('agenda').style.display = 'block';
+            listarAgendamentos();
+        } else {
+            alert('Falha no login');
+        }
+    }
+
+    async function listarAgendamentos() {
+        const res = await fetch('/paciente/agendamentos', {
+            headers: { 'Authorization': 'Bearer ' + token }
+        });
+        if (res.ok) {
+            const agendamentos = await res.json();
+            const ul = document.getElementById('lista-agendamentos');
+            ul.innerHTML = '';
+            agendamentos.forEach(ag => {
+                const li = document.createElement('li');
+                li.textContent = `Agendamento em ${ag.horario} com ${ag.psicologaNome} [${ag.status}]`;
+                const btn = document.createElement('button');
+                btn.textContent = 'Cancelar';
+                btn.onclick = () => cancelarAgendamento(ag.id);
+                li.appendChild(btn);
+                ul.appendChild(li);
+            });
+        }
+    }
+
+    async function cancelarAgendamento(id) {
+        const res = await fetch(`/paciente/agendamentos/${id}`, {
+            method: 'DELETE',
+            headers: { 'Authorization': 'Bearer ' + token }
+        });
+        if (res.ok) {
+            alert('Agendamento cancelado');
+            listarAgendamentos();
+        } else {
+            alert('Erro ao cancelar');
+        }
+    }
+</script>
+</body>
+</html>

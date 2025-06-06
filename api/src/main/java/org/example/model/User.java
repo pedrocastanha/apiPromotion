@@ -21,12 +21,12 @@ import java.util.List;
 public class User {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY) // Use IDENTITY for SERIAL columns
-    private Long id; // Changed to Long
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "clinica_id") // FK column name from schema
-    private Clinica clinica; // Clinica ID is Long
+    @JoinColumn(name = "clinica_id")
+    private Clinica clinica;
 
     @Column(nullable = false, length = 100)
     private String nome;
@@ -82,7 +82,6 @@ public class User {
     @Column(name = "updated_at", nullable = false, columnDefinition = "TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP")
     private OffsetDateTime updatedAt;
 
-    // Relationships
     @OneToOne(mappedBy = "usuario", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private PacienteInfo pacienteInfo; // Maps back from PacienteInfo.usuario (which should be User type)
 

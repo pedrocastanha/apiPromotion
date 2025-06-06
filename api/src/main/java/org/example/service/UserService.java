@@ -1,5 +1,6 @@
 package org.example.service;
 
+import org.apache.el.stream.Optional;
 import org.example.exception.ResourceNotFoundException;
 import org.example.exception.UserAlreadyExistsException;
 import org.example.model.Clinica;
@@ -7,11 +8,13 @@ import org.example.model.User;
 import org.example.model.UserRole;
 import org.example.repository.ClinicaRepository;
 import org.example.repository.UserRepository;
+import org.hibernate.validator.constraints.UUID;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigInteger;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -22,60 +25,47 @@ public class UserService {
     private UserRepository userRepository;
 
     @Autowired
-    private ClinicaRepository clinicaRepository; // Inject ClinicaRepository if needed
+    private ClinicaRepository clinicaRepository;
 
     @Autowired
     private PasswordEncoder passwordEncoder;
 
-    // --- User Registration Methods --- 
-
-    @Transactional // Ensure atomicity
-    public User registerUser(User user, UserRole role, UUID clinicaId) {
-        // Check if email already exists
+    @Transactional
+    public User registerUser(User user, UserRole role, BigInteger clinicaId) {
         if (userRepository.findByEmail(user.getEmail()).isPresent()) {
             throw new UserAlreadyExistsException("Usuário com email " + user.getEmail() + " já existe.");
         }
 
-        // Encode password
         user.setSenha(passwordEncoder.encode(user.getSenha()));
-        // Set the role
         user.setRole(role);
-        // Set active status (default is true in entity, but can be explicit)
         user.setAtivo(true);
-        // Set email verified status (default is false, handle verification flow separately)
-        user.setEmailVerificado(false);
 
-        // Associate with Clinica if ID is provided and role requires it
         if (clinicaId != null && (role == UserRole.DONO_CLINICA || role == UserRole.ATENDENTE || role == UserRole.PROFISSIONAL)) {
             Clinica clinica = clinicaRepository.findById(clinicaId)
                     .orElseThrow(() -> new ResourceNotFoundException("Clínica não encontrada com ID: " + clinicaId));
             user.setClinica(clinica);
         } else if (role == UserRole.PACIENTE) {
-             // Pacientes podem ou não estar vinculados a uma clínica inicialmente
              if (clinicaId != null) {
                  Clinica clinica = clinicaRepository.findById(clinicaId)
                     .orElseThrow(() -> new ResourceNotFoundException("Clínica não encontrada com ID: " + clinicaId));
-                 user.setClinica(clinica); // Vincular se ID fornecido
+                 user.setClinica(clinica);
              }
         } else if (role == UserRole.ADMIN) {
-            // Admin global pode não ter clínica associada
             user.setClinica(null);
         }
 
         return userRepository.save(user);
     }
 
-    // --- User Retrieval Methods --- 
-
     public Optional<User> findByEmail(String email) {
         return userRepository.findByEmail(email);
     }
 
-    public Optional<User> findById(UUID id) { // Changed Long to UUID
+    public Optional<User> findById(BigInteger id) { // Changed Long to UUID
         return userRepository.findById(id);
     }
 
-    public User getUserById(UUID id) { // Convenience method with exception
+    public User getUserById(BigInteger id) { // Convenience method with exception
         return userRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Usuário não encontrado com ID: " + id));
     }
@@ -83,18 +73,16 @@ public class UserService {
     // --- User Update Methods --- 
 
     @Transactional
-    public User updateUserProfile(UUID userId, User updatedData) {
+    public User updateUserProfile(BigInteger userId, User updatedData) {
         User existingUser = getUserById(userId);
 
-        // Update only allowed fields (e.g., nome, telefone, endereço)
-        // Avoid changing email, role, clinica, senha directly here (use specific methods)
         if (updatedData.getNome() != null) {
             existingUser.setNome(updatedData.getNome());
         }
         if (updatedData.getTelefone() != null) {
             existingUser.setTelefone(updatedData.getTelefone());
         }
-        if (updatedData.getCpf() != null) { // Be careful allowing CPF changes
+        if (updatedData.getCpf() != null) {
              existingUser.setCpf(updatedData.getCpf());
         }
         if (updatedData.getDataNascimento() != null) {
@@ -114,7 +102,7 @@ public class UserService {
     }
 
     @Transactional
-    public void changePassword(UUID userId, String currentPassword, String newPassword) {
+    public void changePassword(BigInteger userId, String currentPassword, String newPassword) {
         User user = getUserById(userId);
         // Verify current password
         if (!passwordEncoder.matches(currentPassword, user.getSenha())) {
@@ -128,7 +116,7 @@ public class UserService {
     // --- User Activation/Deactivation --- 
 
     @Transactional
-    public void setUserActiveStatus(UUID userId, boolean isActive) {
+    public void setUserActiveStatus(BigInteger userId, boolean isActive) {
         User user = getUserById(userId);
         user.setAtivo(isActive);
         userRepository.save(user);
@@ -137,7 +125,7 @@ public class UserService {
     // --- Email Verification --- 
     // (Placeholder - requires token generation/validation logic)
     @Transactional
-    public void setEmailVerified(UUID userId) {
+    public void setEmailVerified(BigInteger userId) {
          User user = getUserById(userId);
          user.setEmailVerificado(true);
          user.setTokenVerificacaoEmail(null); // Clear token after verification

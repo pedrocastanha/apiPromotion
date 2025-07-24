@@ -12,7 +12,7 @@
     </parent>
 
     <groupId>org.example</groupId>
-    <artifactId>Psico</artifactId>
+    <artifactId>api</artifactId>
     <version>1.0-SNAPSHOT</version>
 
     <properties>
@@ -55,18 +55,27 @@
             <scope>runtime</scope>
         </dependency>
 
-        <!-- JWT -->
+        <!-- Dependência para a API do JJWT -->
         <dependency>
             <groupId>io.jsonwebtoken</groupId>
-            <artifactId>jjwt</artifactId>
-            <version>0.9.1</version>
+            <artifactId>jjwt-api</artifactId>
+            <version>0.11.5</version>
         </dependency>
 
-        <!-- Twilio -->
+        <!-- Dependência para a implementação do JJWT -->
         <dependency>
-            <groupId>com.twilio.sdk</groupId>
-            <artifactId>twilio</artifactId>
-            <version>8.31.1</version>
+            <groupId>io.jsonwebtoken</groupId>
+            <artifactId>jjwt-impl</artifactId>
+            <version>0.11.5</version>
+            <scope>runtime</scope>
+        </dependency>
+
+        <!-- Dependência para a serialização JSON (geralmente JAXB) -->
+        <dependency>
+            <groupId>io.jsonwebtoken</groupId>
+            <artifactId>jjwt-jackson</artifactId>
+            <version>0.11.5</version>
+            <scope>runtime</scope>
         </dependency>
 
         <!-- Lombok -->
@@ -76,6 +85,7 @@
             <optional>true</optional>
         </dependency>
 
+        <!-- FlyWay -->
         <dependency>
             <groupId>org.flywaydb</groupId>
             <artifactId>flyway-core</artifactId>

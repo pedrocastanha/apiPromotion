@@ -1,6 +1,7 @@
-package org.example.domain;
+package org.example.user;
 
 import jakarta.persistence.*;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -9,6 +10,7 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @Entity
+@Builder
 @Table(name = "users")
 public class User {
     @Id
@@ -26,4 +28,5 @@ public class User {
 
     @Column(nullable = false)
     private String password;
+    
 }

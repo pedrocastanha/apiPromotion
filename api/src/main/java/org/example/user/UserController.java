@@ -1,8 +1,6 @@
-package org.example.controller;
+package org.example.user;
 
-import org.example.domain.User;
 import org.example.dto.LoginDTO;
-import org.example.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -35,6 +33,9 @@ public class UserController {
         User user = optionalUser.get();
         boolean passwordMatches = passwordEncoder.matches(login.getPassword(), user.getPassword());
 
-        return ResponseEntity.ok(user);
+        if(passwordMatches) {
+            return ResponseEntity.ok(user);
+        }
+        return ResponseEntity.badRequest().build();
     }
 }

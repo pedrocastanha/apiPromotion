@@ -40,7 +40,6 @@ public class AuthServiceImpl implements AuthService {
 
         return AuthResponse.builder()
                 .token(jwtToken)
-                .type("Bearer")
                 .email(user.getEmail())
                 .name(user.getName())
                 .build();
@@ -66,7 +65,6 @@ public class AuthServiceImpl implements AuthService {
 
         return AuthResponse.builder()
                 .token(jwtToken)
-                .type("Bearer")
                 .email(user.getEmail())
                 .name(user.getName())
                 .build();

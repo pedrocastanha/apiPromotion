@@ -1,9 +1,9 @@
 package org.example.user;
 
+import java.util.Optional;
+
 public interface UserService {
-    User register(UserRecord.RegisterRequest dto);
+    Optional<User> findByEmail(String email);
 
-    String login(UserRecord.LoginRequest dto);
-
-    User findByEmail(String email);
+    Optional<User> findById(Integer id);
 }

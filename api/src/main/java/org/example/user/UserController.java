@@ -1,41 +1,20 @@
 package org.example.user;
 
-import org.example.dto.LoginDTO;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.security.core.Authentication;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.Optional;
-
 @RestController
-@RequestMapping("/api/users")
+@RequestMapping("/users")
+@RequiredArgsConstructor
 public class UserController {
-    @Autowired
-    private UserService userService;
-    @Autowired
-    private PasswordEncoder passwordEncoder;
 
-    @PostMapping("/register")
-    public ResponseEntity<User> createUser(@RequestBody User user) {
-        User newUser = userService.createUser(user);
-
-        return ResponseEntity.ok(newUser);
-    }
-
-    @PostMapping("/login")
-    public ResponseEntity<User> login(@RequestBody LoginDTO login) {
-        Optional<User> optionalUser = userService.findByEmail(login.getEmail());
-
-        User user = optionalUser.get();
-        boolean passwordMatches = passwordEncoder.matches(login.getPassword(), user.getPassword());
-
-        if(passwordMatches) {
-            return ResponseEntity.ok(user);
-        }
-        return ResponseEntity.badRequest().build();
+    @GetMapping("/profile")
+    public ResponseEntity<UserResponse> getUserProfile(Authentication authentication) {
+        User user = (User) authentication.getPrincipal();
+        return ResponseEntity.ok(UserResponse.fromUser(user));
     }
 }

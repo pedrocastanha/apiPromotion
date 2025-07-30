@@ -33,7 +33,7 @@ public class WebSecurityConfig {
         http
                 .csrf(AbstractHttpConfigurer::disable )
                 .authorizeHttpRequests(req ->
-                        req.requestMatchers("api/auth/**")
+                        req.requestMatchers("/api/auth/**")
                                 .permitAll()
                                 .anyRequest()
                                 .authenticated()
@@ -67,5 +67,10 @@ public class WebSecurityConfig {
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
+    }
+
+    @Bean
+    public JwtAuthFilter jwtAuthFilter() {
+        return new JwtAuthFilter(jwtService, userDetailsService());
     }
 }

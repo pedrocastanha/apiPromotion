@@ -1,6 +1,6 @@
-package org.example.auth;
+package org.example.domain.auth;
 
-import org.example.user.UserRecord;
+import org.example.domain.user.UserRecord;
 
 public interface AuthService {
     AuthResponse register(UserRecord.RegisterRequest request);

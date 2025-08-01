@@ -1,12 +1,12 @@
-package org.example.auth;
+package org.example.domain.auth;
 
 import lombok.RequiredArgsConstructor;
 import org.example.config.JwtService;
 import org.example.exception.EmailAlreadyExistsException;
 import org.example.exception.InvalidCredentialsException;
-import org.example.user.User;
-import org.example.user.UserRecord;
-import org.example.user.UserRepository;
+import org.example.domain.user.User;
+import org.example.domain.user.UserRecord;
+import org.example.domain.user.UserRepository;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.AuthenticationException;

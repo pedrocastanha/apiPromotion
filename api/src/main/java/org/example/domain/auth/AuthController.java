@@ -1,8 +1,8 @@
-package org.example.auth;
+package org.example.domain.auth;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.example.user.UserRecord;
+import org.example.domain.user.UserRecord;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 

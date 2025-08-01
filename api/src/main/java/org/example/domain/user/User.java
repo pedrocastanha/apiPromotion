@@ -1,4 +1,4 @@
-package org.example.user;
+package org.example.domain.user;
 
 import jakarta.persistence.*;
 import lombok.*;

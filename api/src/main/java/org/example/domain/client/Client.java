@@ -1,8 +1,9 @@
-package org.example.client;
+package org.example.domain.client;
 
 import jakarta.persistence.*;
 import lombok.*;
-import org.springframework.security.core.userdetails.UserDetails;
+import org.example.domain.user.User;
+import org.hibernate.annotations.CreationTimestamp;
 
 import java.math.BigDecimal;
 import java.sql.Timestamp;
@@ -15,10 +16,14 @@ import java.util.Date;
 @AllArgsConstructor
 @Entity
 @Table(name = "clients")
-public final class Client implements UserDetails {
+public class Client {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", nullable = false)
+    private User user;
 
     @Column(nullable = false)
     private String name;
@@ -38,24 +43,10 @@ public final class Client implements UserDetails {
     @Column(name = "active")
     private Boolean active;
 
-    @Column(name = "lastPurchase")
+    @Column(name = "last_purchase")
     private Date lastPurchase;
 
-    @Column(name = "createdAt")
+    @CreationTimestamp
+    @Column(name = "created_at", updatable = false)
     private Timestamp createdAt;
-
-    @Override
-    public String getUsername() {
-        return this.email;
-    }
-
-    @Override
-    public boolean isCredentialsNonExpired() {
-        return true;
-    }
-
-    @Override
-    public boolean isEnabled() {
-        return true;
-    }
 }

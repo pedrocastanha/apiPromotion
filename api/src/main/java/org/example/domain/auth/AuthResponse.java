@@ -1,4 +1,4 @@
-package org.example.auth;
+package org.example.domain.auth;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

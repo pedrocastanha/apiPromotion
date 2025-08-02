@@ -7,7 +7,7 @@ import jakarta.validation.constraints.PastOrPresent;
 import lombok.Builder;
 
 import java.math.BigDecimal;
-import java.util.Date;
+import java.time.LocalDate;
 
 public class ClientRecord {
     @Builder
@@ -18,7 +18,7 @@ public class ClientRecord {
             String product,
             @NotNull BigDecimal amount,
             Boolean active,
-            @PastOrPresent Date lastPurchase,
+            @PastOrPresent LocalDate lastPurchase,
             @NotNull Long user_id
     ) {}
 
@@ -29,7 +29,7 @@ public class ClientRecord {
             @NotNull String phoneNumber,
             @NotNull String product,
             @NotNull BigDecimal amount,
-            @NotNull Date lastPurchase,
+            @NotNull LocalDate lastPurchase,
             String email
     ) {}
 }

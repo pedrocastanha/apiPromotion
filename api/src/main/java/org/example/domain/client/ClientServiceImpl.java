@@ -13,10 +13,11 @@ import java.math.BigDecimal;
 import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 import java.time.Instant;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 @Service
 @RequiredArgsConstructor
@@ -24,6 +25,7 @@ public class ClientServiceImpl implements ClientService {
    private final ClientRepository clientRepository;
    private final UserRepository userRepository;
    private final CsvHeaderAliasService headerAliasService;
+   DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
 
    @Override
    public Client createClient(ClientRecord.createClientDTO dto) {
@@ -46,23 +48,25 @@ public class ClientServiceImpl implements ClientService {
 
    @Override
    public void importClientsCSV(MultipartFile file, Long userId) {
+      User userEntity = userRepository.findById(userId)
+        .orElseThrow(() -> new RuntimeException("Usuário ID:    " + userId + " não encontrado."));
+
       try (CSVReader reader = new CSVReader(new InputStreamReader(file.getInputStream()))) {
-         SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy");
-         String[] line;
-         int lineNumber = 2;
          String[] header = reader.readNext();
+         List<Client> clientsToSave = new ArrayList<>();
+         int lineNumber = 2;
 
          if (header == null) {
             throw new RuntimeException("CSV está vazio ou sem cabeçalho.");
          }
 
-         Map<String, Integer> columnIndex = new HashMap<>();
-         for (int i = 0; i < header.length; i++) {
-            String canonical = headerAliasService.resolveCanonical(header[i]);
-            if (canonical != null) {
-               columnIndex.put(canonical, i);
-            }
-         }
+         Map<String, Integer> columnIndex = IntStream.range(0, header.length)
+           .boxed()
+           .collect(Collectors.toMap(
+             i -> headerAliasService.resolveCanonical(header[i]),
+             i -> i,
+             (existentValue, newValue) -> newValue
+           ));
 
          List<String> missing = headerAliasService.requiredFields().stream()
            .filter(f -> !columnIndex.containsKey(f))
@@ -70,42 +74,31 @@ public class ClientServiceImpl implements ClientService {
          if (!missing.isEmpty())
             throw new RuntimeException("Campos obrigatórios ausentes: " + missing);
 
+         String[] line;
          while ((line = reader.readNext()) != null) {
             try {
+               LocalDate lastPurshaseDate = LocalDate.parse(line[columnIndex.get("lastpurchase")], dateFormatter);
                ClientRecord.importClientsDTO dto = ClientRecord.importClientsDTO.builder()
                  .name(line[columnIndex.get("name")])
                  .phoneNumber(line[columnIndex.get("phonenumber")])
                  .product(line[columnIndex.get("product")])
                  .amount(new BigDecimal(line[columnIndex.get("amount")]))
-                 .lastPurchase(formatter.parse(line[columnIndex.get("lastpurchase")]))
+                 .lastPurchase(lastPurshaseDate)
                  .email(columnIndex.containsKey("email") && line[columnIndex.get("email")].isBlank() ? null : line[columnIndex.get("email")])
                  .build();
 
-               Client client = convertToEntity(dto, userId);
-               clientRepository.save(client);
+               Client newClient = new Client(dto, userEntity);
+               clientsToSave.add(newClient);
 
             } catch (Exception e) {
                throw new RuntimeException("Erro ao processar linha " + lineNumber + ": " + Arrays.toString(line), e);
             }
             lineNumber++;
          }
+         clientRepository.saveAll(clientsToSave);
+
       } catch (Exception e) {
          throw new RuntimeException("Erro ao importar o CSV: " + e.getMessage(), e);
       }
-   }
-
-   private Client convertToEntity(ClientRecord.importClientsDTO dto, Long userId) {
-      User user = userRepository.findById(userId)
-        .orElseThrow(() -> new RuntimeException("Usuário não encontrado com id " + userId));
-
-      return Client.builder()
-        .user(user)
-        .name(dto.name())
-        .phoneNumber(dto.phoneNumber())
-        .product(dto.product())
-        .amount(dto.amount())
-        .lastPurchase(dto.lastPurchase())
-        .email(dto.email())
-        .build();
    }
 }

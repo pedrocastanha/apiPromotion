@@ -7,6 +7,7 @@ import org.hibernate.annotations.CreationTimestamp;
 
 import java.math.BigDecimal;
 import java.sql.Timestamp;
+import java.time.LocalDate;
 import java.util.Date;
 
 @Getter
@@ -44,9 +45,19 @@ public class Client {
     private Boolean active;
 
     @Column(name = "last_purchase")
-    private Date lastPurchase;
+    private LocalDate lastPurchase;
 
     @CreationTimestamp
     @Column(name = "created_at", updatable = false)
     private Timestamp createdAt;
+
+    public Client(ClientRecord.importClientsDTO dto, User userEntity) {
+        this.name = dto.name();
+        this.email = dto.email();
+        this.phoneNumber = dto.phoneNumber();
+        this.product = dto.product();
+        this.amount = dto.amount();
+        this.lastPurchase = dto.lastPurchase();
+        this.user = userEntity;
+    }
 }

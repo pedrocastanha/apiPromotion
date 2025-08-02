@@ -1,11 +1,13 @@
 package org.example.domain.client;
 
-import jakarta.validation.constraints.*;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.PastOrPresent;
 import lombok.Builder;
 
 import java.math.BigDecimal;
-import java.sql.Timestamp;
-import java.util.Date;
+import java.time.LocalDate;
 
 public class ClientRecord {
     @Builder
@@ -16,20 +18,18 @@ public class ClientRecord {
             String product,
             @NotNull BigDecimal amount,
             Boolean active,
-            @PastOrPresent Date lastPurchase,
+            @PastOrPresent LocalDate lastPurchase,
             @NotNull Long user_id
     ) {}
 
     @Builder
-    public record ClientResponseDTO(
-            Integer id,
-            String name,
-            String email,
-            String phoneNumber,
-            String product,
-            BigDecimal amount,
-            Boolean active,
-            Date lastPurchase,
-            Timestamp createdAt
+    public record importClientsDTO(
+            @NotNull Long user_id,
+            @NotNull String name,
+            @NotNull String phoneNumber,
+            @NotNull String product,
+            @NotNull BigDecimal amount,
+            @NotNull LocalDate lastPurchase,
+            String email
     ) {}
 }

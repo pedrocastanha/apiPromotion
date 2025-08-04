@@ -11,11 +11,13 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.InputStreamReader;
 import java.math.BigDecimal;
 import java.sql.Timestamp;
-import java.text.SimpleDateFormat;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -37,7 +39,7 @@ public class ClientServiceImpl implements ClientService {
         .phoneNumber(dto.phoneNumber())
         .product(dto.product())
         .amount(dto.amount())
-        .active(dto.active())
+        .active(true)
         .lastPurchase(dto.lastPurchase())
         .createdAt(Timestamp.from(Instant.now()))
         .user(user)
@@ -88,6 +90,7 @@ public class ClientServiceImpl implements ClientService {
                  .build();
 
                Client newClient = new Client(dto, userEntity);
+               newClient.setActive(true);
                clientsToSave.add(newClient);
 
             } catch (Exception e) {

@@ -10,13 +10,18 @@ import java.util.Set;
 @Service
 public class CsvHeaderAliasService {
     private final Map<String, String> aliases = Map.ofEntries(
-            Map.entry("name", "name"),              Map.entry("nome", "name"),
+            Map.entry("name", "name"),
+            Map.entry("nome", "name"),
             Map.entry("cliente", "name"),
-            Map.entry("phonenumber", "phonenumber"),Map.entry("telefone", "phonenumber"),
+            Map.entry("phonenumber", "phonenumber"),
+            Map.entry("telefone", "phonenumber"),
             Map.entry("celular", "phonenumber"),
-            Map.entry("product", "product"),        Map.entry("produto", "product"),
-            Map.entry("amount", "amount"),          Map.entry("valor", "amount"),
-            Map.entry("preco", "amount"),           Map.entry("preço", "amount"),
+            Map.entry("product", "product"),
+            Map.entry("produto", "product"),
+            Map.entry("amount", "amount"),
+            Map.entry("valor", "amount"),
+            Map.entry("preco", "amount"),
+            Map.entry("preço", "amount"),
             Map.entry("lastpurchase", "lastpurchase"),
             Map.entry("datacompra", "lastpurchase"),
             Map.entry("ultimacompra", "lastpurchase"),

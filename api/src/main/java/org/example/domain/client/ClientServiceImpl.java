@@ -104,4 +104,13 @@ public class ClientServiceImpl implements ClientService {
          throw new RuntimeException("Erro ao importar o CSV: " + e.getMessage(), e);
       }
    }
+
+   @Override
+   @org.springframework.transaction.annotation.Transactional(readOnly = true)
+   public List<ClientRecord.ClientListDTO> getClientsByUserId(Long userId){
+      return clientRepository.findAllByUserIdFetch(userId)
+        .stream()
+        .map(ClientRecord.ClientListDTO::of)
+        .toList();
+   }
 }

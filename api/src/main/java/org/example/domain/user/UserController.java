@@ -1,27 +1,32 @@
 package org.example.domain.user;
 
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.example.domain.client.Client;
 import org.example.domain.client.ClientRecord;
+import org.example.domain.client.ClientService;
 import org.example.domain.client.ClientServiceImpl;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
-import java.net.URI;
+import java.util.List;
 
 @RestController
-@RequestMapping("/users")
+@RequestMapping("/api/user")
 @RequiredArgsConstructor
 public class UserController {
+   private final ClientService clientService;
 
-    private final ClientServiceImpl clientServiceImpl;
+   @GetMapping("/profile")
+   public ResponseEntity<UserResponse> getUserProfile(Authentication authentication) {
+      User user = (User) authentication.getPrincipal();
+      return ResponseEntity.ok(UserResponse.fromUser(user));
+   }
 
-    @GetMapping("/profile")
-    public ResponseEntity<UserResponse> getUserProfile(Authentication authentication) {
-        User user = (User) authentication.getPrincipal();
-        return ResponseEntity.ok(UserResponse.fromUser(user));
-    }
+   @ResponseStatus(value = HttpStatus.OK)
+   @GetMapping("/list")
+   public ResponseEntity<List<ClientRecord.ClientListDTO>> listByUserId(@RequestParam("userId") Long userId) {
+      return ResponseEntity.ok(clientService.getClientsByUserId(userId));
+   }
 }

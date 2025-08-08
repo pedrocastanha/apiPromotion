@@ -5,6 +5,7 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.PastOrPresent;
 import lombok.Builder;
+import org.example.domain.user.User;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -36,27 +37,12 @@ public class ClientRecord {
 
     @Builder
     public record ClientListDTO(
-      Integer userId,
       String name,
       String email,
       String phoneNumber,
+      LocalDate lastPurchase,
       String product,
       BigDecimal amount,
-      String lastPurchase // dd/MM/yyyy
-    ) {
-        private static final DateTimeFormatter FMT = DateTimeFormatter.ofPattern("dd/MM/yyyy");
-
-        public static ClientListDTO of(Client c) {
-            String date = c.getLastPurchase() != null ? c.getLastPurchase().format(FMT) : null;
-            return new ClientListDTO(
-              c.getUser().getId(),
-              c.getName(),
-              c.getEmail(),
-              c.getPhoneNumber(),
-              c.getProduct(),
-              c.getAmount(),
-              date
-            );
-        }
-    }
+      Boolean active
+    ) {}
 }

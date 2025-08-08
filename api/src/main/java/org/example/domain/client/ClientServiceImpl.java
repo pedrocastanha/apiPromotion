@@ -6,6 +6,7 @@ import org.example.domain.user.User;
 import org.example.domain.user.UserRepository;
 import org.example.service.CSV.CsvHeaderAliasService;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.InputStreamReader;
@@ -106,11 +107,8 @@ public class ClientServiceImpl implements ClientService {
    }
 
    @Override
-   @org.springframework.transaction.annotation.Transactional(readOnly = true)
+   @Transactional(readOnly = true)
    public List<ClientRecord.ClientListDTO> getClientsByUserId(Long userId){
-      return clientRepository.findAllByUserIdFetch(userId)
-        .stream()
-        .map(ClientRecord.ClientListDTO::of)
-        .toList();
+      return clientRepository.findAllByUserId(userId);
    }
 }

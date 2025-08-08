@@ -1,5 +1,6 @@
 package org.example.domain.client;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -14,7 +15,7 @@ public class ClientController {
 
     @ResponseStatus(value = HttpStatus.OK)
     @PostMapping("/create")
-    public Client createClient(@RequestBody ClientRecord.createClientDTO dto) {
+    public Client createClient(@RequestBody ClientRecord.clientDTO dto) {
         return clientService.createClient(dto);
     }
 
@@ -26,5 +27,13 @@ public class ClientController {
     ) {
         clientService.importClientsCSV(file, userId);
         return ResponseEntity.ok("Importação realizada com sucesso.");
+    }
+
+    @ResponseStatus(value = HttpStatus.OK)
+    @PatchMapping("/edit-client/{id}")
+    public ResponseEntity<ClientRecord.clientListDTO> editClient(
+      @PathVariable Integer id,
+      @Valid @RequestBody ClientRecord.updateClientDTO dto) {
+        return ResponseEntity.ok(clientService.updateClient(id, dto));
     }
 }

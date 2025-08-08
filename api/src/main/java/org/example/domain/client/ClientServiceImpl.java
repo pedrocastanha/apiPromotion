@@ -1,6 +1,7 @@
 package org.example.domain.client;
 
 import com.opencsv.CSVReader;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.example.domain.user.User;
 import org.example.domain.user.UserRepository;
@@ -31,7 +32,7 @@ public class ClientServiceImpl implements ClientService {
    DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
 
    @Override
-   public Client createClient(ClientRecord.createClientDTO dto) {
+   public Client createClient(ClientRecord.clientDTO dto) {
       User user = userRepository.findById(dto.user_id())
         .orElseThrow(() -> new RuntimeException("User not found"));
       Client client = Client.builder()
@@ -108,7 +109,26 @@ public class ClientServiceImpl implements ClientService {
 
    @Override
    @Transactional(readOnly = true)
-   public List<ClientRecord.ClientListDTO> getClientsByUserId(Long userId){
+   public List<ClientRecord.clientListDTO> getClientsByUserId(Long userId){
       return clientRepository.findAllByUserId(userId);
+   }
+
+   @Override
+   @Transactional
+   public ClientRecord.clientListDTO updateClient(Integer id, ClientRecord.updateClientDTO dto) {
+      Client entity = clientRepository.findById(id)
+        .orElseThrow(() -> new EntityNotFoundException("Cliente não encontrado: " + id));
+
+      entity.applyUpdate(dto);
+
+      return new ClientRecord.clientListDTO(
+        entity.getName(),
+        entity.getEmail(),
+        entity.getPhoneNumber(),
+        entity.getLastPurchase(),
+        entity.getProduct(),
+        entity.getAmount(),
+        entity.getActive()
+      );
    }
 }

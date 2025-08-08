@@ -4,11 +4,12 @@ import jakarta.persistence.*;
 import lombok.*;
 import org.example.domain.user.User;
 import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.DynamicUpdate;
 
 import java.math.BigDecimal;
 import java.sql.Timestamp;
 import java.time.LocalDate;
-import java.util.Date;
+import java.util.Objects;
 
 @Getter
 @Setter
@@ -16,6 +17,7 @@ import java.util.Date;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
+@DynamicUpdate
 @Table(name = "clients")
 public class Client {
     @Id
@@ -59,5 +61,15 @@ public class Client {
         this.amount = dto.amount();
         this.lastPurchase = dto.lastPurchase();
         this.user = userEntity;
+    }
+
+    public void applyUpdate(ClientRecord.updateClientDTO dto) {
+        if (Objects.nonNull(dto.name())) { this.setName(dto.name()); }
+        if (Objects.nonNull(dto.email())) { this.setEmail(dto.email()); }
+        if (Objects.nonNull(dto.phoneNumber())) { this.setPhoneNumber(dto.phoneNumber()); }
+        if (Objects.nonNull(dto.product())) { this.setProduct(dto.product()); }
+        if (Objects.nonNull(dto.amount())) { this.setAmount(dto.amount()); }
+        if (Objects.nonNull(dto.active())) { this.setActive(dto.active()); }
+        if (Objects.nonNull(dto.lastPurchase())) { this.setLastPurchase(dto.lastPurchase()); }
     }
 }

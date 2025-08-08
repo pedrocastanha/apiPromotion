@@ -5,9 +5,11 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.PastOrPresent;
 import lombok.Builder;
+import org.example.domain.user.User;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 
 public class ClientRecord {
     @Builder
@@ -31,5 +33,16 @@ public class ClientRecord {
             @NotNull BigDecimal amount,
             @NotNull LocalDate lastPurchase,
             String email
+    ) {}
+
+    @Builder
+    public record ClientListDTO(
+      String name,
+      String email,
+      String phoneNumber,
+      LocalDate lastPurchase,
+      String product,
+      BigDecimal amount,
+      Boolean active
     ) {}
 }

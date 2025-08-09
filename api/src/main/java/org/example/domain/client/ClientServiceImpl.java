@@ -16,10 +16,7 @@ import java.sql.Timestamp;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -122,6 +119,7 @@ public class ClientServiceImpl implements ClientService {
       entity.applyUpdate(dto);
 
       return new ClientRecord.clientListDTO(
+        entity.getId(),
         entity.getName(),
         entity.getEmail(),
         entity.getPhoneNumber(),
@@ -130,5 +128,14 @@ public class ClientServiceImpl implements ClientService {
         entity.getAmount(),
         entity.getActive()
       );
+   }
+
+   @Override
+   @Transactional
+   public void deleteClient(Integer id) throws Exception {
+      clientRepository.findById(id)
+        .orElseThrow(() -> new Exception("Cliente com ID " + id + " não encontrado."));
+
+      clientRepository.deleteById(id);
    }
 }

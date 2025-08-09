@@ -12,4 +12,6 @@ public interface ClientService {
     List<ClientRecord.clientListDTO> getClientsByUserId(Long userId);
 
     ClientRecord.clientListDTO updateClient(Integer id, ClientRecord.updateClientDTO dto);
+
+    void deleteClient(Integer id) throws Exception;
 }

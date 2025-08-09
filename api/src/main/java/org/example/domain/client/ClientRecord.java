@@ -35,6 +35,7 @@ public class ClientRecord {
 
     @Builder
     public record clientListDTO(
+      Integer id,
       String name,
       String email,
       String phoneNumber,

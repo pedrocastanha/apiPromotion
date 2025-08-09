@@ -36,4 +36,16 @@ public class ClientController {
       @Valid @RequestBody ClientRecord.updateClientDTO dto) {
         return ResponseEntity.ok(clientService.updateClient(id, dto));
     }
+
+    @ResponseStatus(value = HttpStatus.OK)
+    @DeleteMapping("/delete/{id}")
+    public ResponseEntity<String> deleteClient(@PathVariable Integer id) {
+        try {
+            clientService.deleteClient(id);
+            return ResponseEntity.ok("Client deleted with sucess.");
+        } catch (Exception e) {
+           throw new RuntimeException(e);
+        }
+    }
+
 }

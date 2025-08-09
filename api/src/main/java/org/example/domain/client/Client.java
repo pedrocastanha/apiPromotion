@@ -9,7 +9,8 @@ import org.hibernate.annotations.DynamicUpdate;
 import java.math.BigDecimal;
 import java.sql.Timestamp;
 import java.time.LocalDate;
-import java.util.Objects;
+import java.util.Optional;
+import java.util.function.Consumer;
 
 @Getter
 @Setter
@@ -63,13 +64,17 @@ public class Client {
         this.user = userEntity;
     }
 
+    private <T> void updateIfPresent(T value, Consumer<T> setter) {
+        Optional.ofNullable(value).ifPresent(setter);
+    }
+
     public void applyUpdate(ClientRecord.updateClientDTO dto) {
-        if (Objects.nonNull(dto.name())) { this.setName(dto.name()); }
-        if (Objects.nonNull(dto.email())) { this.setEmail(dto.email()); }
-        if (Objects.nonNull(dto.phoneNumber())) { this.setPhoneNumber(dto.phoneNumber()); }
-        if (Objects.nonNull(dto.product())) { this.setProduct(dto.product()); }
-        if (Objects.nonNull(dto.amount())) { this.setAmount(dto.amount()); }
-        if (Objects.nonNull(dto.active())) { this.setActive(dto.active()); }
-        if (Objects.nonNull(dto.lastPurchase())) { this.setLastPurchase(dto.lastPurchase()); }
+        updateIfPresent(dto.name(),        this::setName);
+        updateIfPresent(dto.email(),       this::setEmail);
+        updateIfPresent(dto.phoneNumber(), this::setPhoneNumber);
+        updateIfPresent(dto.product(),     this::setProduct);
+        updateIfPresent(dto.amount(),      this::setAmount);
+        updateIfPresent(dto.active(),      this::setActive);
+        updateIfPresent(dto.lastPurchase(),this::setLastPurchase);
     }
 }

@@ -1,10 +1,8 @@
 package org.example.domain.user;
 
 import lombok.RequiredArgsConstructor;
-import org.example.domain.client.Client;
 import org.example.domain.client.ClientRecord;
 import org.example.domain.client.ClientService;
-import org.example.domain.client.ClientServiceImpl;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -26,7 +24,7 @@ public class UserController {
 
    @ResponseStatus(value = HttpStatus.OK)
    @GetMapping("/list")
-   public ResponseEntity<List<ClientRecord.ClientListDTO>> listByUserId(@RequestParam("userId") Long userId) {
+   public ResponseEntity<List<ClientRecord.clientListDTO>> listByUserId(@RequestParam("userId") Long userId) {
       return ResponseEntity.ok(clientService.getClientsByUserId(userId));
    }
 }

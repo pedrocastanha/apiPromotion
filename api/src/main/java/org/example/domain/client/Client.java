@@ -1,6 +1,7 @@
 package org.example.domain.client;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
 import lombok.*;
 import org.example.domain.user.User;
 import org.hibernate.annotations.CreationTimestamp;
@@ -25,6 +26,7 @@ public class Client {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
+    @NotNull
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
@@ -54,13 +56,27 @@ public class Client {
     @Column(name = "created_at", updatable = false)
     private Timestamp createdAt;
 
+    public void setEmail(String email) {
+        if (email != null && !email.isBlank() && !email.matches("^[A-Za-z0-9+_.-]+@(.+)$")) {
+            throw new IllegalArgumentException("Invalid e-mail format: " + email);
+        }
+        this.email = email;
+    }
+
+    public void setLastPurchase(LocalDate lastPurchase) {
+        if (lastPurchase != null && lastPurchase.isAfter(LocalDate.now())) {
+            throw new IllegalArgumentException("The last purchase date cannot be a future date.");
+        }
+        this.lastPurchase = lastPurchase;
+    }
+
     public Client(ClientRecord.importClientsDTO dto, User userEntity) {
         this.name = dto.name();
-        this.email = dto.email();
+        this.setEmail(dto.email());
         this.phoneNumber = dto.phoneNumber();
         this.product = dto.product();
         this.amount = dto.amount();
-        this.lastPurchase = dto.lastPurchase();
+        this.setLastPurchase(dto.lastPurchase());
         this.user = userEntity;
     }
 

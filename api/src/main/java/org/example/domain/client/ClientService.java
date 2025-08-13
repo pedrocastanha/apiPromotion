@@ -13,5 +13,5 @@ public interface ClientService {
 
     ClientRecord.clientListDTO updateClient(Integer id, ClientRecord.updateClientDTO dto);
 
-    void deleteClient(Integer id) throws Exception;
+    void deleteClient(Integer id);
 }

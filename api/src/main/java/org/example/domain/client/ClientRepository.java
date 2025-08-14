@@ -8,5 +8,5 @@ import java.util.List;
 
 public interface ClientRepository extends JpaRepository<Client, Integer> {
    @EntityGraph(attributePaths = "user")
-   List<ClientRecord.ClientListDTO> findAllByUserId(@Param("userId") Long userId);
+   List<ClientRecord.clientListDTO> findAllByUserId(@Param("userId") Long userId);
 }

@@ -5,15 +5,13 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.PastOrPresent;
 import lombok.Builder;
-import org.example.domain.user.User;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 
 public class ClientRecord {
     @Builder
-    public record createClientDTO(
+    public record clientDTO(
             @NotBlank String name,
             @Email String email,
             @NotBlank String phoneNumber,
@@ -36,7 +34,8 @@ public class ClientRecord {
     ) {}
 
     @Builder
-    public record ClientListDTO(
+    public record clientListDTO(
+      Integer id,
       String name,
       String email,
       String phoneNumber,
@@ -44,5 +43,16 @@ public class ClientRecord {
       String product,
       BigDecimal amount,
       Boolean active
+    ) {}
+
+    @Builder
+    public record updateClientDTO(
+      String name,
+      @Email String email,
+      String phoneNumber,
+      String product,
+      BigDecimal amount,
+      Boolean active,
+      @PastOrPresent LocalDate lastPurchase
     ) {}
 }

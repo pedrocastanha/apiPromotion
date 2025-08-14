@@ -1,14 +1,17 @@
 package org.example.domain.client;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
 import lombok.*;
 import org.example.domain.user.User;
 import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.DynamicUpdate;
 
 import java.math.BigDecimal;
 import java.sql.Timestamp;
 import java.time.LocalDate;
-import java.util.Date;
+import java.util.Optional;
+import java.util.function.Consumer;
 
 @Getter
 @Setter
@@ -16,12 +19,14 @@ import java.util.Date;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
+@DynamicUpdate
 @Table(name = "clients")
 public class Client {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
+    @NotNull
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
@@ -51,13 +56,41 @@ public class Client {
     @Column(name = "created_at", updatable = false)
     private Timestamp createdAt;
 
+    public void setEmail(String email) {
+        if (email != null && !email.isBlank() && !email.matches("^[A-Za-z0-9+_.-]+@(.+)$")) {
+            throw new IllegalArgumentException("Invalid e-mail format: " + email);
+        }
+        this.email = email;
+    }
+
+    public void setLastPurchase(LocalDate lastPurchase) {
+        if (lastPurchase != null && lastPurchase.isAfter(LocalDate.now())) {
+            throw new IllegalArgumentException("The last purchase date cannot be a future date.");
+        }
+        this.lastPurchase = lastPurchase;
+    }
+
     public Client(ClientRecord.importClientsDTO dto, User userEntity) {
         this.name = dto.name();
-        this.email = dto.email();
+        this.setEmail(dto.email());
         this.phoneNumber = dto.phoneNumber();
         this.product = dto.product();
         this.amount = dto.amount();
-        this.lastPurchase = dto.lastPurchase();
+        this.setLastPurchase(dto.lastPurchase());
         this.user = userEntity;
+    }
+
+    private <T> void updateIfPresent(T value, Consumer<T> setter) {
+        Optional.ofNullable(value).ifPresent(setter);
+    }
+
+    public void applyUpdate(ClientRecord.updateClientDTO dto) {
+        updateIfPresent(dto.name(),        this::setName);
+        updateIfPresent(dto.email(),       this::setEmail);
+        updateIfPresent(dto.phoneNumber(), this::setPhoneNumber);
+        updateIfPresent(dto.product(),     this::setProduct);
+        updateIfPresent(dto.amount(),      this::setAmount);
+        updateIfPresent(dto.active(),      this::setActive);
+        updateIfPresent(dto.lastPurchase(),this::setLastPurchase);
     }
 }

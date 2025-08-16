@@ -1,0 +1,59 @@
+1. Tratamento de Erros Específico e Centralizado
+O que foi feito:
+Criação da ClientNotFoundException: Uma nova classe de exceção foi criada, herdando de RuntimeException.
+
+Anotação @ResponseStatus(HttpStatus.NOT_FOUND): Esta anotação foi adicionada à nova exceção.
+
+Substituição de Exceções Genéricas: Nos serviços (ClientServiceImpl), as chamadas que antes lançavam EntityNotFoundException ou Exception agora lançam a nova ClientNotFoundException.
+
+Remoção de try-catch no Controller: O bloco try-catch no método deleteClient do ClientController foi removido.
+
+Por que foi feito:
+Clareza e Semântica: Em vez de uma exceção genérica, agora temos uma que descreve exatamente o que deu errado: "um cliente não foi encontrado". Isso torna o código muito mais fácil de entender.
+Padrão RESTful: Uma API REST bem projetada deve retornar códigos de status HTTP corretos. Quando um recurso não é encontrado, o status correto é 404 Not Found. A anotação @ResponseStatus automatiza isso.
+O Spring intercepta a ClientNotFoundException e automaticamente gera uma resposta HTTP 404, sem que você precise escrever uma linha de código no controller para isso.
+Limpeza do Controller: Controllers devem ser "magros". A responsabilidade deles é receber requisições e delegar o trabalho, não tratar a lógica de negócio ou exceções complexas.
+Ao remover o try-catch, o controller fica mais limpo e focado em suas tarefas principais.
+
+2. Logging Estratégico com SLF4J
+O que foi feito:
+Adição de Logs: Logs foram adicionados a todos os métodos públicos no ClientController e ClientServiceImpl usando org.slf4j.Logger.
+Níveis de Log Corretos: Usamos log.info() para eventos normais (ex: "Requisição recebida", "Cliente deletado com sucesso") e log.warn() para situações de alerta que não são erros fatais
+(ex: "Tentativa de deletar um cliente que já não existe").
+Correção do ClassCastException: O tipo da variável log no ClientController foi corrigido de java.util.logging.Logger para org.slf4j.Logger.
+
+Por que foi feito:
+Observabilidade: Logs são os "olhos" da sua aplicação em produção. Sem eles, se algo der errado, você estará cego.
+Agora você pode rastrear o fluxo de uma requisição, ver os IDs envolvidos e diagnosticar problemas rapidamente.
+Padrão do Spring Boot: O SLF4J é a fachada de logging padrão no ecossistema Spring. Usá-lo garante compatibilidade e aproveita a configuração automática do Spring Boot (que usa Logback por baixo dos panos).
+Correção de Bug Crítico: O ClassCastException impedia a aplicação de iniciar. A correção alinhou o tipo da variável com a biblioteca que estava sendo usada, resolvendo o conflito.
+
+3. Eliminação de Código Repetitivo com MapStruct
+O que foi feito:
+Criação da Interface ClientMapper: Uma interface foi criada e anotada com @Mapper(componentModel = "spring").
+Definição de Métodos de Mapeamento: Métodos como toClientListDTO e updateClientFromDto foram definidos na interface.
+Injeção do Mapper: O ClientMapper foi injetado no ClientServiceImpl.
+Substituição do Código Manual: O construtor manual no updateClient e o método applyUpdate na entidade Client foram substituídos por chamadas ao mapper.
+Por que foi feito:
+Redução de "Boilerplate": Mapear campos de um objeto para outro é uma tarefa repetitiva e propensa a erros (esquecer um campo, errar um nome). MapStruct automatiza isso.
+Você só define a "assinatura" da conversão, e a biblioteca escreve o código de implementação por você em tempo de compilação.
+Manutenibilidade: Se um novo campo for adicionado ao Client, você só precisa atualizar o DTO e, na maioria dos casos, o MapStruct o incluirá no mapeamento automaticamente.
+Com o código manual, você teria que lembrar de adicioná-lo em vários lugares.
+Desempenho: Como o MapStruct gera código Java puro em tempo de compilação, ele é extremamente rápido, sem a sobrecarga de reflection que algumas outras bibliotecas de mapeamento usam em tempo de execução.
+
+4. Validação de Dados na Fonte
+O que foi feito:
+Validação na Entidade (Client.java): Lógica de validação foi adicionada diretamente nos setters setEmail() e setLastPurchase().
+Validação no Controller (ClientController.java): A anotação @Positive foi adicionada aos parâmetros de ID nos endpoints, e @Valid nos RequestBody para acionar as validações dos DTOs.
+Imutabilidade do Usuário: O campo user na entidade Client foi marcado como final e com @JoinColumn(updatable = false).
+Por que foi feito:
+Princípio "Fail-Fast" (Falhe Rápido): É melhor rejeitar dados inválidos o mais cedo possível. A validação no controller (@Positive, @Valid) barra requisições ruins antes mesmo de chegarem ao serviço. A validação na entidade é a última linha de defesa, garantindo a integridade dos dados que serão persistidos no banco.
+Integridade Referencial: Tornar o user imutável garante que um registro de cliente nunca poderá ser "movido" para outro usuário, prevenindo uma classe inteira de bugs e problemas de segurança.
+5. Internacionalização (i18n)
+O que foi feito:
+Criação do messages.properties: Um arquivo de propriedades foi criado para armazenar textos voltados para o usuário.
+Tradução da Mensagem: A mensagem "Cliente deletado com sucesso" foi movida para este arquivo e traduzida para o inglês (client.deleted=...).
+Uso do MessageSource: O MessageSource do Spring foi injetado no controller para buscar a mensagem correta com base no Locale (idioma) da requisição.
+Por que foi feito:
+Escalabilidade e Boas Práticas: Mesmo que sua aplicação só precise de um idioma hoje, separar os textos do código é uma prática fundamental. Isso torna trivial a adição de novos idiomas no futuro, sem precisar alterar o código Java. Profissionais de tradução podem trabalhar diretamente nos arquivos .properties.
+Em resumo, transformamos o código de um estado funcional para um estado profissional: mais seguro, mais fácil de depurar, mais fácil de estender e alinhado com as convenções e ferramentas que definem o desenvolvimento moderno com Spring Boot.

@@ -15,6 +15,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class UserController {
    private final ClientService clientService;
+   private final UserService userService;
 
    @GetMapping("/profile")
    public ResponseEntity<UserResponse> getUserProfile(Authentication authentication) {
@@ -26,5 +27,11 @@ public class UserController {
    @GetMapping("/list")
    public ResponseEntity<List<ClientRecord.clientListDTO>> listByUserId(@RequestParam("userId") Long userId) {
       return ResponseEntity.ok(clientService.getClientsByUserId(userId));
+   }
+
+   @ResponseStatus(value = HttpStatus.OK)
+   @PostMapping("/message-bot")
+   public ResponseEntity<String>sendMessage(@RequestBody UserRecord.ChatMessageRequest request) {
+      return ResponseEntity.ok(userService.sendChatMessage(request.userId(), request.message()));
    }
 }

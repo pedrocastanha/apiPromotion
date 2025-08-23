@@ -37,4 +37,6 @@ build/
 ### Mac OS ###
 .DS_Store
 
+/api/src/main/resources/application.properties
 application.properties
+anoptacao

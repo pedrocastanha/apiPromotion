@@ -2,9 +2,11 @@ package org.example.domain.user;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.example.domain.company.Company;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.List;
 
@@ -26,11 +28,15 @@ public final class User implements UserDetails {
     @Column(unique = true)
     private String email;
 
-    @Column(name = "phonenumber", unique = true, length = 14)
+    @Column(name = "phone_number", unique = true, length = 14)
     private String phoneNumber;
 
     @Column(nullable = false)
     private String password;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "company_id", nullable = false)
+    private Company company;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

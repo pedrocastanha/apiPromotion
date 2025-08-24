@@ -43,19 +43,18 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional(readOnly = true)
-    public String sendChatMessage(Integer userId, String message) {
-        User user = userRepository.findById(Long.valueOf(userId))
-          .orElseThrow(() -> new NoSuchElementException("Usuário não encontrado com o ID: " + userId));
+    public String generateCampaignMessage(User user, String prompt) {
+        logger.info("Iniciando geração de mensagem para campanha do usuário ID: {}", user.getId());
 
         Company company = user.getCompany();
         if (company == null) {
-            throw new IllegalStateException("O usuário com ID " + userId + " não possui uma empresa associada.");
+            throw new IllegalStateException("{error.campaign.userHasNoCompany," + user.getId() + "}");
         }
 
         UserRecord.ChatApiRequest apiRequest = new UserRecord.ChatApiRequest(
           company.getName(),
           company.getType(),
-          message
+          prompt
         );
         String requestJson = GSON.toJson(apiRequest);
 
@@ -63,27 +62,31 @@ public class UserServiceImpl implements UserService {
           .uri(URI.create(chatApiUrl))
           .header("Content-Type", "application/json")
           .POST(HttpRequest.BodyPublishers.ofString(requestJson))
-          .timeout(Duration.ofSeconds(20))
+          .timeout(Duration.ofSeconds(30))
           .build();
 
         try {
+            logger.debug("Enviando requisição para a API de Chat no endereço: {}", chatApiUrl);
             HttpResponse<String> response = HTTP_CLIENT.send(request, HttpResponse.BodyHandlers.ofString());
+
             if (response.statusCode() != 200) {
                 logger.error("Falha na API de Chat. Status: {}, Body: {}", response.statusCode(), response.body());
-                throw new RuntimeException("Erro na comunicação com o serviço de chat: status " + response.statusCode());
+                throw new RuntimeException("Erro na comunicação com o serviço de IA: status " + response.statusCode());
             }
 
             UserRecord.ChatApiResponse apiResponse = GSON.fromJson(response.body(), UserRecord.ChatApiResponse.class);
             if (apiResponse == null || apiResponse.response() == null) {
                 logger.warn("API de Chat retornou uma resposta válida (200 OK) mas com corpo nulo ou inválido.");
-                throw new IllegalStateException("Resposta inválida recebida do serviço de chat.");
+                throw new IllegalStateException("Resposta inválida recebida do serviço de IA.");
             }
+
+            logger.info("Mensagem gerada com sucesso pela IA para o usuário ID: {}", user.getId());
             return apiResponse.response();
 
         } catch (IOException | InterruptedException e) {
             Thread.currentThread().interrupt();
-            logger.error("Falha de comunicação com a API de Chat para o usuário {}: {}", userId, e.getMessage());
-            throw new RuntimeException("Falha de comunicação com o serviço de chat.", e);
+            logger.error("Falha de comunicação com a API de IA para o usuário {}: {}", user.getId(), e.getMessage());
+            throw new RuntimeException("Falha de comunicação com o serviço de IA.", e);
         }
     }
 }

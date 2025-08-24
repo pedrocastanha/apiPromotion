@@ -7,5 +7,5 @@ public interface UserService {
 
     Optional<User> findById(Integer id);
 
-    String sendChatMessage(Integer userId, String message);
+    String generateCampaignMessage(User user, String prompt);
 }

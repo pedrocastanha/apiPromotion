@@ -117,7 +117,7 @@ public class ClientServiceImpl implements ClientService {
    @Override
    @Transactional(readOnly = true)
    public List<ClientRecord.clientListDTO> getClientsByUserId(Long userId){
-      return clientRepository.findAllByUserId(userId);
+      return clientRepository.findAllAsDTOByUserId(userId);
    }
 
    @Override

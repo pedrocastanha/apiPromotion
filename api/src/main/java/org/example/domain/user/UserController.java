@@ -28,10 +28,4 @@ public class UserController {
    public ResponseEntity<List<ClientRecord.clientListDTO>> listByUserId(@RequestParam("userId") Long userId) {
       return ResponseEntity.ok(clientService.getClientsByUserId(userId));
    }
-
-   @ResponseStatus(value = HttpStatus.OK)
-   @PostMapping("/message-bot")
-   public ResponseEntity<String>sendMessage(@RequestBody UserRecord.ChatMessageRequest request) {
-      return ResponseEntity.ok(userService.sendChatMessage(request.userId(), request.message()));
-   }
 }

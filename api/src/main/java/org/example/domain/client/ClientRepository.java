@@ -2,7 +2,6 @@ package org.example.domain.client;
 
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 import java.time.LocalDate;
@@ -14,10 +13,9 @@ public interface ClientRepository extends JpaRepository<Client, Integer> {
 
    List<Client> findAllByUserId(Long userId);
 
-   @Query("SELECT c FROM Client c WHERE c.user.id = :userId AND c.lastPurchase BETWEEN :startDate AND :endDate")
-   List<Client> findAllByUserIdAndLastPurchaseDateBetween(
-     @Param("userId") Long userId,
-     @Param("startDate") LocalDate startDate,
-     @Param("endDate") LocalDate endDate
+   List<Client> findAllByUserIdAndLastPurchaseBetween(
+     Long userId,
+     LocalDate startDate,
+     LocalDate endDate
    );
 }

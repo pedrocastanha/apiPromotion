@@ -5,12 +5,14 @@ import org.example.domain.user.User;
 import org.example.domain.user.UserService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.MessageSource;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
+import java.util.Locale;
 
 @RestController
-@RequestMapping("/api/campaigns" )
+@RequestMapping("/api/campaigns")
 @RequiredArgsConstructor
 public class CampaignController {
 
@@ -18,6 +20,7 @@ public class CampaignController {
 
    private final UserService userService;
    private final CampaignService campaignService;
+   private final MessageSource messageSource;
 
    @PostMapping("/generate-message")
    public ResponseEntity<CampaignRecord.CampaignMessageResponse> generateCampaignMessage(
@@ -25,9 +28,9 @@ public class CampaignController {
      Authentication authentication
    ) {
       User user = (User) authentication.getPrincipal();
-      logger.info("Requisição para gerar mensagem para o usuário ID: {}", user.getId());
-      String generatedMessage = userService.generateCampaignMessage(user, request.prompt());
-      return ResponseEntity.ok(new CampaignRecord.CampaignMessageResponse(generatedMessage));
+      logger.info(messageSource.getMessage("campaign.generate.message.request", new Object[]{user.getId()}, Locale.getDefault()));
+
+      return ResponseEntity.ok(new CampaignRecord.CampaignMessageResponse(userService.generateCampaignMessage(user, request.prompt())));
    }
 
    @PostMapping("/send")
@@ -36,8 +39,8 @@ public class CampaignController {
      Authentication authentication
    ) {
       User user = (User) authentication.getPrincipal();
-      logger.info("Requisição para agendar mensagem para o usuário ID: {}", user.getId());
+      logger.info(messageSource.getMessage("campaign.schedule.message.request", new Object[]{user.getId()}, Locale.getDefault()));
       campaignService.scheduleCampaign(user, request);
-      return ResponseEntity.accepted().body("As mensagens estão sendo enfileiradas para envio.");
+      return ResponseEntity.accepted().body(messageSource.getMessage("campaign.messages.queued", null, Locale.getDefault()));
    }
 }

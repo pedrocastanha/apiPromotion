@@ -15,6 +15,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class UserController {
    private final ClientService clientService;
+   private final UserService userService;
 
    @GetMapping("/profile")
    public ResponseEntity<UserResponse> getUserProfile(Authentication authentication) {

@@ -30,7 +30,9 @@ public class CampaignController {
       User user = (User) authentication.getPrincipal();
       logger.info(messageSource.getMessage("campaign.generate.message.request", new Object[]{user.getId()}, Locale.getDefault()));
 
-      return ResponseEntity.ok(new CampaignRecord.CampaignMessageResponse(userService.generateCampaignMessage(user, request.prompt())));
+      CampaignRecord.CampaignMessageResponse response = userService.generateCampaignMessage(user, request.prompt());
+
+      return ResponseEntity.ok(response);
    }
 
    @PostMapping("/send")

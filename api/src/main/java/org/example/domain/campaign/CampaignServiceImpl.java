@@ -45,17 +45,28 @@ public class CampaignServiceImpl implements CampaignService {
          return;
       }
 
+      CampaignRecord.CampaignMessageResponse messages = request.messages();
+
+      List<String> messageParts = List.of(
+        messages.initial(),
+        messages.promotion(),
+        messages.information(),
+        messages.invite()
+      );
+
       for (Client client : targetClients) {
-         try {
-            String personalizedMessage = request.approvedMessage().replace("[nome do cliente]", extractFirstName(client.getName()));
-            CampaignRecord.WhatsAppMessage message = new CampaignRecord.WhatsAppMessage(client.getPhoneNumber(), personalizedMessage);
-            String messageJson = objectMapper.writeValueAsString(message);
+         for (String messagePart : messageParts) {
+            try {
+               String personalizedMessage = messagePart.replace("[nome do cliente]", extractFirstName(client.getName()));
+               CampaignRecord.WhatsAppMessage message = new CampaignRecord.WhatsAppMessage(client.getPhoneNumber(), personalizedMessage);
+               String messageJson = objectMapper.writeValueAsString(message);
 
-            redisTemplate.opsForList().rightPush(RedisQueueConfig.WHATSAPP_MESSAGES_QUEUE, messageJson);
-            logger.debug(messageSource.getMessage("campaign.message.queued", new Object[]{client.getId()}, Locale.getDefault()));
+               redisTemplate.opsForList().rightPush(RedisQueueConfig.WHATSAPP_MESSAGES_QUEUE, messageJson);
+               logger.debug(messageSource.getMessage("campaign.message.queued", new Object[]{client.getId()}, Locale.getDefault()));
 
-         } catch (Exception e) {
-            logger.error(messageSource.getMessage("campaign.message.error", new Object[]{client.getId(), e.getMessage()}, Locale.getDefault()));
+            } catch (Exception e) {
+               logger.error(messageSource.getMessage("campaign.message.error", new Object[]{client.getId(), e.getMessage()}, Locale.getDefault()));
+            }
          }
       }
       logger.info(messageSource.getMessage("campaign.schedule.complete", new Object[]{user.getId()}, Locale.getDefault()));

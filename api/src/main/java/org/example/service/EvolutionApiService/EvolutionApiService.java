@@ -11,9 +11,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.MessageSource;
 import org.springframework.stereotype.Service;
 
-import java.util.HashMap;
 import java.util.Locale;
-import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 @Service
@@ -46,14 +44,16 @@ public class EvolutionApiService {
       try {
          logger.debug(messageSource.getMessage("evolution.message.sending", new Object[]{phoneNumber}, Locale.getDefault()));
 
-         Map<String, Object> requestBody = new HashMap<>();
-         requestBody.put("number", phoneNumber);
-         requestBody.put("text", text);
+         EvolutionApiRecord.SendMessageOptions options = new EvolutionApiRecord.SendMessageOptions(
+           TimeUnit.SECONDS.toMillis(PRESENCE_DURATION_SECONDS),
+           "composing"
+         );
 
-         Map<String, Object> options = new HashMap<>();
-         options.put("delay", TimeUnit.SECONDS.toMillis(PRESENCE_DURATION_SECONDS));
-         options.put("presence", "composing");
-         requestBody.put("options", options);
+         EvolutionApiRecord.SendMessageRequest requestBody = new EvolutionApiRecord.SendMessageRequest(
+           phoneNumber,
+           text,
+           options
+         );
 
          HttpResponse<JsonNode> response = Unirest.post(endpointUrl)
            .header("apikey", evolutionApiKey)

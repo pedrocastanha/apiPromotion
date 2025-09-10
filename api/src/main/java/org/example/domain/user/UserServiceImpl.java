@@ -2,6 +2,7 @@ package org.example.domain.user;
 
 import com.google.gson.Gson;
 import lombok.RequiredArgsConstructor;
+import org.example.domain.campaign.CampaignRecord;
 import org.example.domain.company.Company;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -45,7 +46,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional(readOnly = true)
-    public String generateCampaignMessage(User user, String prompt) {
+    public CampaignRecord.CampaignMessageResponse generateCampaignMessage(User user, String prompt) {
         logger.info(messageSource.getMessage("user.campaign.message.start", new Object[]{user.getId()}, Locale.getDefault()));
 
         Company company = user.getCompany();
@@ -77,13 +78,18 @@ public class UserServiceImpl implements UserService {
             }
 
             UserRecord.ChatApiResponse apiResponse = GSON.fromJson(response.body(), UserRecord.ChatApiResponse.class);
-            if (apiResponse == null || apiResponse.response() == null) {
+            if (apiResponse == null) {
                 logger.warn(messageSource.getMessage("user.chat.api.invalidResponse", null, Locale.getDefault()));
                 throw new IllegalStateException(messageSource.getMessage("user.chat.api.invalid", null, Locale.getDefault()));
             }
 
             logger.info(messageSource.getMessage("user.campaign.message.success", new Object[]{user.getId()}, Locale.getDefault()));
-            return apiResponse.response();
+            return new CampaignRecord.CampaignMessageResponse(
+              apiResponse.initial(),
+              apiResponse.promotion(),
+              apiResponse.information(),
+              apiResponse.invite()
+            );
 
         } catch (IOException | InterruptedException e) {
             Thread.currentThread().interrupt();

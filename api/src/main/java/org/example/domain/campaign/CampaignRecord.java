@@ -15,11 +15,16 @@ public class CampaignRecord {
      @NotBlank(message = "{campaign.validation.notBlank}") String prompt
    ){}
 
-   public record CampaignMessageResponse(String generatedMessage) { }
+   public record CampaignMessageResponse(
+     String initial,
+     String promotion,
+     String information,
+     String invite
+   ) {}
 
    public enum TargetingType { ALL, SPECIFIC, LAST_PURCHASE }
    public record SendCampaignRequest(
-     @NotBlank(message = "{campaign.validation.notBlank}") String approvedMessage,
+     @NotNull(message = "{campaign.validation.notNull}") CampaignMessageResponse messages,
      @NotNull(message = "{campaign.validation.notNull}") TargetingType targetingType,
      List<Integer> specificClientIds,
      DateRange lastPurchaseRange

@@ -29,6 +29,9 @@ public class UserRecord {
    }
 
    public record ChatApiResponse(
-     String response
+     String initial,
+     String promotion,
+     String information,
+     String invite
    ){}
 }

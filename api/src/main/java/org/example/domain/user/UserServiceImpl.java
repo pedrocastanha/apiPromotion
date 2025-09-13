@@ -54,9 +54,9 @@ public class UserServiceImpl implements UserService {
         }
 
         UserRecord.ChatApiRequest apiRequest = new UserRecord.ChatApiRequest(
+          prompt,
           company.getName(),
-          company.getType(),
-          prompt
+          company.getType()
         );
         String requestJson = GSON.toJson(apiRequest);
 

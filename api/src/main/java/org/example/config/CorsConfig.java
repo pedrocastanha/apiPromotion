@@ -14,9 +14,13 @@ public class CorsConfig {
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         CorsConfiguration config = new CorsConfiguration();
         config.setAllowCredentials(true);
-        config.addAllowedOrigin("http://localhost:5034" );
+        config.addAllowedOriginPattern("http://localhost:*");
+        config.addAllowedOriginPattern("https://localhost:*");
+        config.addAllowedOriginPattern("http://127.0.0.1:*");
+        config.addAllowedOriginPattern("https://127.0.0.1:*");
         config.addAllowedHeader("*");
         config.addAllowedMethod("*");
+        config.addExposedHeader("*");
         source.registerCorsConfiguration("/**", config);
         return new CorsFilter(source);
     }

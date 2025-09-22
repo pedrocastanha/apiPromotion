@@ -1,5 +1,7 @@
 package org.example.domain.user;
 
+import org.example.domain.campaign.CampaignRecord;
+
 import java.util.Optional;
 
 public interface UserService {
@@ -7,5 +9,5 @@ public interface UserService {
 
     Optional<User> findById(Integer id);
 
-    String generateCampaignMessage(User user, String prompt);
+    CampaignRecord.CampaignMessageResponse generateCampaignMessage(User user, String prompt);
 }

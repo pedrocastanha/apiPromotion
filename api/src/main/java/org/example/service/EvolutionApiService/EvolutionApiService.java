@@ -12,12 +12,14 @@ import org.springframework.context.MessageSource;
 import org.springframework.stereotype.Service;
 
 import java.util.Locale;
-import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 @Service
 public class EvolutionApiService {
 
    private static final Logger logger = LoggerFactory.getLogger(EvolutionApiService.class);
+
+   private static final long PRESENCE_DURATION_SECONDS = 5;
 
    private final String evolutionApiUrl;
    private final String evolutionApiKey;
@@ -42,9 +44,15 @@ public class EvolutionApiService {
       try {
          logger.debug(messageSource.getMessage("evolution.message.sending", new Object[]{phoneNumber}, Locale.getDefault()));
 
-         Map<String, Object> requestBody = Map.of(
-           "number", phoneNumber,
-           "text", text
+         EvolutionApiRecord.SendMessageOptions options = new EvolutionApiRecord.SendMessageOptions(
+           TimeUnit.SECONDS.toMillis(PRESENCE_DURATION_SECONDS),
+           "composing"
+         );
+
+         EvolutionApiRecord.SendMessageRequest requestBody = new EvolutionApiRecord.SendMessageRequest(
+           phoneNumber,
+           text,
+           options
          );
 
          HttpResponse<JsonNode> response = Unirest.post(endpointUrl)
